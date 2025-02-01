@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-Based Slideshow</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #slideshow-container {
+            position: relative;
+            height: 500px;
+            width: 800px;
+            overflow: hidden;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        #caption {
+            margin-top: 20px;
+            font-size: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        #controls {
+            margin-top: 20px;
+        }
+
+        .button {
+            background-color: gray;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: darkgray;
+        }
+    </style>
+</head>
+<body>
+    <div id="slideshow-container">
+        <img id="slide-image" src="" alt="Slideshow Image" />
+    </div>
+    <div id="caption">Loading...</div>
+
+    <div id="controls">
+        <button class="button" id="prev-button">Previous</button>
+        <button class="button" id="next-button">Next</button>
+    </div>
+
+    <script>
+        const imageElement = document.getElementById("slide-image");
+        const captionElement = document.getElementById("caption");
+
+        let slides = [];
+        let currentIndex = 0;
+
+        // Fetch images and captions from the backend
+        async function fetchSlides() {
+            const response = await fetch("/api/images");
+            slides = await response.json();
+            showSlide(currentIndex);
+        }
+
+        // Show the current slide
+        function showSlide(index) {
+            if (slides.length > 0) {
+                currentIndex = (index + slides.length) % slides.length; // Wrap around
+                const slide = slides[currentIndex];
+                imageElement.src = "/" + slide.image; // Flask serves images from the path
+                captionElement.innerText = slide.caption;
+            } else {
+                captionElement.innerText = "No slides found.";
+                imageElement.src = "";
+            }
+        }
+
+        // Event listeners for navigation buttons
+        document.getElementById("prev-button").addEventListener("click", () => showSlide(currentIndex - 1));
+        document.getElementById("next-button").addEventListener("click", () => showSlide(currentIndex + 1));
+
+        // Load slides when the page is ready
+        document.addEventListener("DOMContentLoaded", fetchSlides);
+    </script>
+</body>
+</html>

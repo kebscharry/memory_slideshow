@@ -81,23 +81,43 @@ while running:
      show_slide(image_path, caption)
      time.sleep(slide_duration) #wait before showing next slide
      index += 1
-     # start_time = time.time()
-     # while time.time() - start_time < slide_duration:
-     #     for event in pygame.event.get():
-     #         if event.type == pygame.QUIT:
-     #             running = False
-     #         elif event.type == pygame.KEYDOWN:
-     #             if event.key == pygame.K_RIGHT:
-     #                 index = (index + 1) % len(image_files)
-     #                 break
-     #             elif event.key == pygame.K_LEFT:
-     #                 index = (index - 1) % len(image_files)
-     #                 break
-     #             elif event.key == pygame.K_ESCAPE:
-     #                 running = False
-     #                 index = (index - 1) % len(image_files)
 
-     #event handling(exit on close button)
+     # Track time for slide duration
+     current_slide_start_time = time.time()
+
+     # Main loop
+     running = True
+     index = 0
+     while running:
+         # Check elapsed time to manage slide duration
+         elapsed_time = time.time() - current_slide_start_time
+         if elapsed_time >= slide_duration:  # Move to the next slide
+             index = (index + 1) % len(image_files)
+             current_slide_start_time = time.time()  # Reset slide timer
+
+         # Draw the current slide
+         image_name = image_files[index]
+         image_path = os.path.join(images_folder, image_name)
+         caption = captions.get(image_name, "A special moment ❤")  # Default caption if not found
+         show_slide(image_path, caption)
+
+         # Event handling
+         for event in pygame.event.get():
+             if event.type == pygame.QUIT:  # Quit event
+                 running = False
+             elif event.type == pygame.KEYDOWN:  # Keyboard navigation
+                 if event.key == pygame.K_RIGHT:  # Next slide
+                     index = (index + 1) % len(image_files)
+                     current_slide_start_time = time.time()  # Reset slide timer
+                 elif event.key == pygame.K_LEFT:  # Previous slide
+                     index = (index - 1) % len(image_files)
+                     current_slide_start_time = time.time()  # Reset slide timer
+                 elif event.key == pygame.K_ESCAPE:  # Exit the application
+                     running = False
+
+     pygame.quit()
+
+
      for event in pygame.event.get():
          if event.type == pygame.QUIT:
              running = False
